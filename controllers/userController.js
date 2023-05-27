@@ -1,43 +1,66 @@
-//Note: You have to edit only this file
+// //Note: You have to edit only this file
 const User = require('../models/userModel');
 
-//Registering user into database
+// Create a new user
 const createUser = async (req, res) => {
   try {
-    //Write a code here to save a user into db
-  } catch (err) {
-    console.error('Failed to create user', err);
-    res.status(500).json({ error: 'Failed to create user' });
+    const newUser = new User(req.body);
+    await newUser.save();
+    res.status(201).json({ newUser });
+  } catch (error) {
+    res.status(500).json({ error: 'An error occurred while creating the user.' });
   }
 };
 
-//Get User From a Particular id
+// Get a user by ID
 const getUser = async (req, res) => {
   try {
-    // Write a code here to get user from a specific ID
-  } catch (err) {
-    console.error('Failed to get user details', err);
-    res.status(500).json({ error: 'Failed to get user details' });
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(500).json({ error: 'An error occurred while retrieving the user.' });
   }
 };
 
-//Updating User
+// Update a user by ID
 const updateUser = async (req, res) => {
   try {
-    // Write a code here to update user details
-  } catch (err) {
-    console.error('Failed to update user details', err);
-    res.status(500).json({ error: 'Failed to update user details' });
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+    Object.assign(user, req.body);
+    await user.save();
+    res.status(200).json({ message: 'User details updated successfully' });
+  } catch (error) {
+    res.status(500).json({ error: 'An error occurred while updating the user.' });
   }
 };
 
-//Deleting User
+// Delete a user by ID
 const deleteUser = async (req, res) => {
   try {
-    // Write a code here to DELETE user from a given Id parameter
-  } catch (err) {
-    console.error('Failed to delete user', err);
-    res.status(500).json({ error: 'Failed to delete user' });
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+    await user.remove();
+    res.status(200).json({ message: 'User deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: 'An error occurred while deleting the user.' });
   }
 };
-module.exports = { createUser, getUser, updateUser, deleteUser };
+
+// Export the controller functions
+module.exports = {
+  createUser,
+  getUser,
+  updateUser,
+  deleteUser
+};
